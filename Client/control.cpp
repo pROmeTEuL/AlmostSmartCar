@@ -10,6 +10,7 @@ static const char Backward = 'b';
 static const char Stop = 's';
 static const char PingPong = 'p';
 static const char Distance = 'd';
+static const char ShutDown = 'z';
 
 Control::Control(QObject *parent) : QObject(parent)
 {
@@ -49,6 +50,11 @@ void Control::connectToCar()
 {
     m_socket.connectToHost("192.168.5.1", 5706);
     setConnected(true);
+}
+
+void Control::shutdownServer()
+{
+    m_socket.write(&ShutDown, 1);
 }
 
 void Control::setConnected(bool newConnected)

@@ -16,12 +16,20 @@ Window {
         onClicked: _control.connectToCar()
     }
     Button {
+        visible: _control.connected
         anchors.right: parent.right
         anchors.top: parent.top
+        text: "SHUT DOWN"
+        onClicked: _control.shutdownServer();
+    }
+    Button {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
         text: "Quit"
         onClicked: Qt.quit();
     }
     ColumnLayout {
+        visible: _control.connected
         anchors.centerIn: parent
         Label {
             Layout.alignment: Qt.AlignHCenter
@@ -38,7 +46,6 @@ Window {
                 text: "Right: " + _control.rightS + "cm"
             }
         }
-
         Label{
             Layout.alignment: Qt.AlignHCenter
             text: "Rear: " + _control.rearS + "cm"

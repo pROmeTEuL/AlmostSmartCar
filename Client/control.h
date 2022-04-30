@@ -26,6 +26,7 @@ public:
 public slots:
     void setJoyPos(double x, double y);
     void connectToCar();
+    void shutdownServer();
 
 private:
     void setConnected(bool newConnected);
