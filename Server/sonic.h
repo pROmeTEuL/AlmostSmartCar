@@ -19,7 +19,7 @@ private:
 private:
     mutable QMutex m_mutex;
     bool m_triggered= false;
-    double m_distance = 0.0;
+    uint32_t m_distance = 0;
     uint32_t m_startTime = 0;
     int m_trig;
     int m_echo;

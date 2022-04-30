@@ -45,16 +45,18 @@ void Sonic::echoCallback(int event, int level, uint32_t tick, void *userdata)
             double time = tick - thiz->m_startTime;
             thiz->m_triggered = false;
             thiz->m_startTime = 0;
+            uint32_t dist = time / 58;  // https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf
+                                        // You can calculate the range through the time interval between sending
+                                        // trigger signal and receiving echo signal.
+                                        // Formula: uS / 58 = centimeters
+                                        // or uS / 148 =inch;
+                                        // or: the range = high level time * velocity (340M/S) / 2;
+                                        // we suggest to use over 60ms measurement cycle,
+                                        // in order to prevent trigger signal to the echo signal.
+            if (dist > 400)
+                dist = 400;
             QMutexLocker lock(&thiz->m_mutex);
-            thiz->m_distance = time / 58; // https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf
-                                          // You can calculate the range through
-                                          // the time interval between sending
-                                          // trigger signal and receiving echo
-                                          // signal. Formula: uS / 58 = centimeters
-                                          // or uS / 148 =inch;
-                                          // or: the range = high level time * velocity (340M/S) / 2;
-                                          // we suggest to use over 60ms measurement cycle,
-                                          // in order to prevent trigger signal to the echo signal.
+            thiz->m_distance = dist;
 //            qDebug() << "Care:" << thiz->m_cr << thiz->m_distance << event << level << tick << time;
         }
     }
