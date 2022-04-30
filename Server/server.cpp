@@ -3,6 +3,7 @@
 #include <pigpio.h>
 
 #include <QTimer>
+#include <QCoreApplication>
 
 static const char Forward = 'f';
 static const char Left = 'l';
@@ -11,6 +12,7 @@ static const char Backward = 'b';
 static const char Stop = 's';
 static const char PingPong = 'p';
 static const char Distance = 'd';
+static const char Shutdown = 'z';
 
 static const int rs = 22;
 static const int en = 23;
@@ -185,10 +187,21 @@ void Server::readClientData()
         return;
     char lastCommand = 0;
     for (const auto c : buff) {
-        if (c == PingPong) {
+        switch (c) {
+        case PingPong:
             m_pong = true;
-        } else {
+            break;
+        case Shutdown:
+            stopCar();
+            m_lcd.clear();
+            m_lcd.setCursor(0, 0);
+            m_lcd.write("Goodnight...");
+            system("poweroff");
+            qApp->quit();
+            break;
+        default:
             lastCommand = c;
+            break;
         }
     }
     m_lcd.setCursor(8, 1);
