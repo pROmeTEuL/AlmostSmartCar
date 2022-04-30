@@ -42,13 +42,14 @@ enum {
 
 static const uint8_t UpChBuff[8] = {
   0b00100,
-  0b01110,
+  0b00100,
+  0b00100,
+  0b00100,
   0b11111,
-  0b00100,
-  0b00100,
-  0b00100,
+  0b01110,
   0b00100,
 };
+
 static const uint8_t LeftChBuff[8] = {
   0b00000,
   0b00100,
@@ -58,6 +59,7 @@ static const uint8_t LeftChBuff[8] = {
   0b00100,
   0b00000,
 };
+
 static const uint8_t RightChBuff[8] = {
   0b00000,
   0b00100,
@@ -67,13 +69,14 @@ static const uint8_t RightChBuff[8] = {
   0b00100,
   0b00000,
 };
+
 static const uint8_t DownChBuff[8] = {
   0b00100,
-  0b00100,
-  0b00100,
-  0b00100,
-  0b11111,
   0b01110,
+  0b11111,
+  0b00100,
+  0b00100,
+  0b00100,
   0b00100,
 };
 
@@ -120,7 +123,7 @@ Server::Server(QObject *parent)
         m_pong = false;
         m_socket->write(&PingPong, sizeof(char));
     });
-    pingPongTimer->start(200);
+    pingPongTimer->start(500);
     auto surroundCheckTimer = new QTimer(this);
     connect(surroundCheckTimer, &QTimer::timeout, this, [this] {
         const uint32_t fD = m_front.distanceCM();
@@ -143,24 +146,21 @@ Server::Server(QObject *parent)
         }
         switch (m_currentDirection) {
         case Forward:
-            if (fD < 20)
+            if (fD < 50)
                 stopCar();
             break;
         case Left:
-            if (lD < 20)
-                stopCar();
-            break;
         case Right:
-            if (rD < 20)
+            if (lD < 20 || rD < 20)
                 stopCar();
             break;
         case Backward:
-            if (bD < 20)
+            if (bD < 50)
                 stopCar();
             break;
         }
     });
-    surroundCheckTimer->start(100);
+    surroundCheckTimer->start(50);
     stopCar();
 }
 
@@ -197,7 +197,7 @@ void Server::readClientData()
         stopCar();
         break;
     case Forward:
-        if (m_front.distanceCM() < 20) {
+        if (m_front.distanceCM() < 50) {
             stopCar();
             break;
         }
@@ -212,7 +212,7 @@ void Server::readClientData()
         gpioWrite(RightEngEn, 1);
         break;
     case Left:
-        if (m_left.distanceCM() < 20) {
+        if (m_left.distanceCM() < 20 || m_right.distanceCM() < 20) {
             stopCar();
             break;
         }
@@ -227,7 +227,7 @@ void Server::readClientData()
         gpioWrite(RightEngEn, 1);
         break;
     case Right:
-        if (m_right.distanceCM() < 20) {
+        if (m_right.distanceCM() < 20 || m_left.distanceCM() < 20) {
             stopCar();
             break;
         }
@@ -242,7 +242,7 @@ void Server::readClientData()
         gpioWrite(RightEngEn, 1);
         break;
     case Backward:
-        if (m_rear.distanceCM() < 20) {
+        if (m_rear.distanceCM() < 50) {
             stopCar();
             break;
         }
