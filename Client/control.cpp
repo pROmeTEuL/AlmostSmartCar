@@ -30,7 +30,7 @@ void Control::setJoyPos(double x, double y)
         return;
     }
     if (std::abs(x) > std::abs(y)) {
-        if (x > 0) {
+        if (x < 0) {
             m_socket.write(&Right, 1);
         } else {
             m_socket.write(&Left, 1);
