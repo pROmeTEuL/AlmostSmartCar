@@ -8,10 +8,11 @@ Window {
     height: 480
     visible: true
     title: qsTr("Car controller")
+
     Button {
         anchors.left: parent.left
         anchors.top: parent.top
-        visible: !_control.connected
+        visible: !_control.connected // obiectul "_control" este publicat in qml in main.cpp
         text: "Connect"
         onClicked: _control.connectToCar()
     }

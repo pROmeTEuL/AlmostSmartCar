@@ -1,3 +1,5 @@
+// clasa portata de pe arduino pe raspberry pi folosind pigpio
+// sursele pot fi gasite aici: https://github.com/pROmeTEuL/Pigpio_LiquidCrystal
 #ifndef LiquidCrystal_h
 #define LiquidCrystal_h
 

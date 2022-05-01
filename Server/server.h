@@ -8,19 +8,19 @@
 
 #include "LiquidCrystal.h"
 #include "sonic.h"
-
+// clasa pentru server
 class Server : public QObject
 {
     Q_OBJECT
 public:
     explicit Server(QObject *parent = nullptr);
-signals:
 
 private:
     void acceptConnection();
     void readClientData();
     void socketError();
     void stopCar();
+
 private:
     bool m_pong = true;
     QTcpServer m_server;

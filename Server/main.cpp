@@ -4,8 +4,9 @@
 
 int main(int argc, char *argv[])
 {
-    gpioCfgClock(10, 0, 0);
-    gpioCfgClock(10, 1, 0);
+    gpioCfgClock(5, 0, 0);
+    gpioCfgClock(5, 1, 0);
+    // initializam pigpio
     if (gpioInitialise() < 0)
             return -1;
     QCoreApplication a(argc, argv);

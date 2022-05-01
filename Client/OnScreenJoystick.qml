@@ -1,3 +1,4 @@
+// adaptat din https://github.com/bog-dan-ro/spectacol/blob/master/spectacol/qml/OnScreenJoystick.qml
 import QtQuick 2.12
 import QtQuick.Window 2.12
 

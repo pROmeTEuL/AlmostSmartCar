@@ -97,13 +97,19 @@ Server::Server(QObject *parent)
     , m_currentDirection(Stop)
 {
     connect(&m_server, &QTcpServer::newConnection, this, &Server::acceptConnection);
+
+    // ascultam pe ip-ul host-ului pe portul 5706
+    m_server.listen(QHostAddress::Any, 5706);
+
+    // initializam pinii pentru motoare
     gpioSetMode(LeftEngEn, PI_OUTPUT);
     gpioSetMode(LeftEngFr, PI_OUTPUT);
     gpioSetMode(LeftEngBk, PI_OUTPUT);
     gpioSetMode(RightEngEn, PI_OUTPUT);
     gpioSetMode(RightEngFr, PI_OUTPUT);
     gpioSetMode(RightEngBk, PI_OUTPUT);
-    m_server.listen(QHostAddress::Any, 5706);
+
+    // initializam lcd-ul
     m_lcd.begin(16, 2);
     m_lcd.clear();
     m_lcd.createChar(UpCh, UpChBuff);
@@ -112,11 +118,12 @@ Server::Server(QObject *parent)
     m_lcd.createChar(DownCh, DownChBuff);
     m_lcd.setCursor(0, 0);
     m_lcd.write("Disconnected");
+    // creeam un timer pentru ping-pong
     auto pingPongTimer = new QTimer(this);
-    connect(pingPongTimer, &QTimer::timeout, this, [this]{
+    connect(pingPongTimer, &QTimer::timeout, this, [this]{ // aceasta functie lambda este apelata la fiecare 500ms
         if (!m_socket)
             return;
-        if (!m_pong) {
+        if (!m_pong) { // daca nu am primit pong-ul in timp, oprim masina si conexiunea
             stopCar();
             delete m_socket;
             m_socket = nullptr;
@@ -125,18 +132,21 @@ Server::Server(QObject *parent)
         m_pong = false;
         m_socket->write(&PingPong, sizeof(char));
     });
+    // dam drumu timer-ului ping-pong
     pingPongTimer->start(500);
+    // creeam un timer pentru verificarea senzorilor
     auto surroundCheckTimer = new QTimer(this);
-    connect(surroundCheckTimer, &QTimer::timeout, this, [this] {
+    connect(surroundCheckTimer, &QTimer::timeout, this, [this] { // aceasta functie lambda este apelata la fiecare 50ms
         const uint32_t fD = m_front.distanceCM();
         const uint32_t lD = m_left.distanceCM();
         const uint32_t rD = m_right.distanceCM();
         const uint32_t bD = m_rear.distanceCM();
+        // remasuram distantele
         m_front.trigger();
         m_left.trigger();
         m_right.trigger();
         m_rear.trigger();
-        if (m_socket && m_sendSensorsTimer.elapsed() >= 500) {
+        if (m_socket && m_sendSensorsTimer.elapsed() >= 500) { // la fiecare 500ms trimitem distantele catre client
             m_sendSensorsTimer.restart();
             QByteArray buff;
             buff.append(Distance);
@@ -146,7 +156,7 @@ Server::Server(QObject *parent)
             buff.append(reinterpret_cast<const char*>(&bD), sizeof(bD));
             m_socket->write(buff);
         }
-        switch (m_currentDirection) {
+        switch (m_currentDirection) { // verific daca masina este in pericol de coliziune
         case Forward:
             if (fD < 50)
                 stopCar();
@@ -166,7 +176,7 @@ Server::Server(QObject *parent)
     stopCar();
 }
 
-void Server::acceptConnection()
+void Server::acceptConnection() // aceasta functie este apelata cand un client vrea sa se conecteze pe portul 5706
 {
     delete m_socket;
     m_socket = m_server.nextPendingConnection();
@@ -180,7 +190,7 @@ void Server::acceptConnection()
     m_lcd.write("Connected");
 }
 
-void Server::readClientData()
+void Server::readClientData() // primesc comenzile de la client
 {
     const auto buff = m_socket->readAll();
     if (buff.isEmpty())
@@ -198,7 +208,7 @@ void Server::readClientData()
             m_lcd.write("Goodnight...");
             system("poweroff");
             qApp->quit();
-            break;
+            return;
         default:
             lastCommand = c;
             break;
@@ -273,7 +283,7 @@ void Server::readClientData()
     }
 }
 
-void Server::socketError()
+void Server::socketError() // este apelat cand se intrerupe conexiunea dintre server si client
 {
     stopCar();
     m_lcd.clear();
@@ -281,7 +291,7 @@ void Server::socketError()
     m_lcd.write("Disconnected");
 }
 
-void Server::stopCar()
+void Server::stopCar() // functia pentru oprirea masinii
 {
     gpioWrite(LeftEngEn, 0);
     gpioWrite(RightEngEn, 0);

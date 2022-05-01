@@ -2,12 +2,10 @@
 #define SONIC_H
 
 #include <QMutex>
-#include <QObject>
 
-class Sonic : public QObject
+// clasa pt masurarea distantei folosind senzorul HC-SR04
+class Sonic
 {
-    Q_OBJECT
-
 public:
     Sonic(int trig, int echo, char cr);
     uint32_t distanceCM() const;

@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     Control control;
     QQmlApplicationEngine engine;
+    // publicam obiectul "control" in QML ca "_control"
     engine.rootContext()->setContextProperty("_control", &control);
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

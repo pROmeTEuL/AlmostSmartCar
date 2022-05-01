@@ -8,7 +8,7 @@
 class Control : public QObject
 {
     Q_OBJECT
-
+    // proprietatile clasei control
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(int frontS READ frontS NOTIFY frontSChanged)
     Q_PROPERTY(int leftS READ leftS NOTIFY leftSChanged)
@@ -23,7 +23,7 @@ public:
     int rightS() const;
     int rearS() const;
 
-public slots:
+public slots: // functii care pot fi apelate din QML (prin "_control")
     void setJoyPos(double x, double y);
     void connectToCar();
     void shutdownServer();
